@@ -1,0 +1,70 @@
+#Webscraper
+#Requires pip install bs4
+
+#Imports bs4
+import bs4
+
+#from urllib.request import urlopen ; imports the urlopen from the bs4 url library
+from urllib.request import urlopen
+
+#from bs4 import BeautifulSoup ; imports the BeautifulSoup module from bs4
+from bs4 import BeautifulSoup
+
+#Sets the GRAPHICSURL variable as the website URL for graphics cards
+GRAPHICSURL = "https://www.newegg.com/p/pl?d=graphics+cards"
+
+#Accesses Newegg
+newEggClient = urlopen(GRAPHICSURL)
+
+#Reads the webpage
+site_code = newEggClient.read()
+
+#Closes the connection with Newegg
+newEggClient.close()
+
+#Uses beautifulSoup to parse the site's code
+bsw = BeautifulSoup(site_code, "html.parser")
+
+#Finds all the div classes with name item-container ; This is where newegg stores the page's data on each graphics card ; Use len(bswContainers) to check returns
+bswContainers = bsw.findAll("div",{"class":"item-container"})
+
+#Drag out the "item-info" from the first bswContainers variable and sets it to specific_Container ; Will help power loops
+# specific_Container = bswContainers[0].find("div","item-info")
+
+#Narrows the "item-info" down to the "a href" and returns the string within "img" then "title"
+#use specific_Container > specific_Container.a > specific_Container.a.img > specific_Container.a.img["title"] ; Shows each step
+#specific_Container.a.img["title"] will power the loop and pull the title from each container
+#This loops cycles through all of the indices and pulls the brand name
+#Finds all div classes with name "item title"
+# title_container = bsw.findAll("a",{"class":"item-title"})    ; Checks the array/list for item-title 
+# title = title_container[0].text ; Checks the first index's text
+for c in range(len(bswContainers)):
+    maker_Container = bswContainers[c].find("div","item-info")
+    maker = maker_Container.a.img["title"]
+    
+    title_Container = bsw.findAll("a",{"class":"item-title"})
+    title = title_Container[c].text
+    
+    shipping_Container = bswContainers[c].find("li","price-ship")
+    shipping = shipping_Container.text
+    
+    price_Container = bswContainers[c].find("li","price-current")
+    price_Dollars = str(price_Container.strong)
+    price_Cents = str(price_Container.sup)
+    final_dollars_price = ''
+    for i in range(len(price_Dollars)):
+        if 48 <= ord(price_Dollars[i]) <= 57:
+            final_dollars_price += price_Dollars[i]
+
+    final_cents_price = ''
+    for i in range(len(price_Cents)):
+        if 48 <= ord(price_Cents[i]) <= 57:
+            final_cents_price += price_Cents[i]
+
+    price = "$ "+final_dollars_price +"."+ final_cents_price
+    
+    print(maker)
+    print(shipping)
+    print(title)
+    print(price)
+
