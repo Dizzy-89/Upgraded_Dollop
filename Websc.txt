@@ -28,16 +28,27 @@ bsw = BeautifulSoup(site_code, "html.parser")
 #Finds all the div classes with name item-container ; This is where newegg stores the page's data on each graphics card ; Use len(bswContainers) to check returns
 bswContainers = bsw.findAll("div",{"class":"item-container"})
 
-#Drag out the "item-info" from the first bswContainers variable and sets it to specific_Container ; Will help power loops
-# specific_Container = bswContainers[0].find("div","item-info")
+import time
 
+currentTime = time.ctime()
+Filename = currentTime +" "+ "Daily_Cards.csv"
+csv_File = Filename.replace(":","_")
+f = open(csv_File, "w")
+
+f.write("Maker, Shipping Price, Product Model, Product Price\n")
+
+#Drag out the "item-info" from the first bswContainers variable and sets it to specific_Container ; Will help power loops
+#specific_Container = bswContainers[0].find("div","item-info")
 #Narrows the "item-info" down to the "a href" and returns the string within "img" then "title"
 #use specific_Container > specific_Container.a > specific_Container.a.img > specific_Container.a.img["title"] ; Shows each step
 #specific_Container.a.img["title"] will power the loop and pull the title from each container
 #This loops cycles through all of the indices and pulls the brand name
 #Finds all div classes with name "item title"
-# title_container = bsw.findAll("a",{"class":"item-title"})    ; Checks the array/list for item-title 
+# title_container = bsw.findAll("a",{"class":"item-title"})    ; Checks the list for item-title 
 # title = title_container[0].text ; Checks the first index's text
+#if 48 <= ord(price_Cents[i]) <= 57:strips the characters that aren't numbers
+#f.write() loops each product to to the CSV ; replaces , with - because "," adds new columns
+
 for c in range(len(bswContainers)):
     maker_Container = bswContainers[c].find("div","item-info")
     maker = maker_Container.a.img["title"]
@@ -63,8 +74,19 @@ for c in range(len(bswContainers)):
 
     price = "$ "+final_dollars_price +"."+ final_cents_price
     
+    
+    f.write(maker + "," + shipping + "," + title.replace(",","-") + "," + price + "\n")
+
     print(maker)
     print(shipping)
     print(title)
     print(price)
+
+#Closes the csv file
+f.close()
+
+#Could add "See in cart" text for products who are see in cart and don't have data to scrap
+#Expanding?
+#Could create a main function that calls each website's scraper function
+#Change prints to returns?
 
