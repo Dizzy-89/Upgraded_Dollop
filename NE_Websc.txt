@@ -1,0 +1,55 @@
+import bs4
+
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+
+GRAPHICSURL = "https://www.newegg.com/p/pl?d=graphics+cards"
+newEggClient = urlopen(GRAPHICSURL)
+site_code = newEggClient.read()
+
+newEggClient.close()
+
+bsw = BeautifulSoup(site_code, "html.parser")
+bswContainers = bsw.findAll("div",{"class":"item-container"})
+
+import time
+
+currentTime = time.ctime()
+Filename = currentTime +" "+ "Daily_Cards.csv"
+csv_File = Filename.replace(":","_")
+f = open(csv_File, "w")
+f.write("Maker, Shipping Price, Product Model, Product Price\n")
+
+for c in range(len(bswContainers)):
+    maker_Container = bswContainers[c].find("div","item-info")
+    maker = maker_Container.a.img["title"]
+     
+    title_Container = bsw.findAll("a",{"class":"item-title"})
+    title = title_Container[c].text
+    
+    shipping_Container = bswContainers[c].find("li","price-ship")
+    shipping = shipping_Container.text
+    
+    price_Container = bswContainers[c].find("li","price-current")
+    price_Dollars = str(price_Container.strong)
+    price_Cents = str(price_Container.sup)
+    final_dollars_price = ''
+    for i in range(len(price_Dollars)):
+        if 48 <= ord(price_Dollars[i]) <= 57:
+            final_dollars_price += price_Dollars[i]
+
+    final_cents_price = ''
+    for i in range(len(price_Cents)):
+        if 48 <= ord(price_Cents[i]) <= 57:
+            final_cents_price += price_Cents[i]
+
+    price = "$ "+final_dollars_price +"."+ final_cents_price
+    
+    f.write(maker + "," + shipping + "," + title.replace(",","-") + "," + price + "\n")
+
+    print(maker)
+    print(shipping)
+    print(title)
+    print(price)
+
+f.close()
