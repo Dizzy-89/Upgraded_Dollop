@@ -22,7 +22,7 @@ f.write("Maker, Shipping Price, Product Model, Product Price\n")
 
 for c in range(len(bswContainers)):
     maker_Container = bswContainers[c].find("div","item-info")
-    maker = maker_Container.a.img["title"]
+    maker = "AD" if maker_Container.a.img == None else maker_Container.a.img["title"]
      
     title_Container = bsw.findAll("a",{"class":"item-title"})
     title = title_Container[c].text
